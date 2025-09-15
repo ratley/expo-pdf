@@ -1,0 +1,43 @@
+{
+	"name": "@ratley/expo-pdf",
+	"version": "0.1.2",
+	"description": "My new module",
+	"main": "build/index.js",
+	"types": "build/index.d.ts",
+	"scripts": {
+		"build": "expo-module build",
+		"clean": "expo-module clean",
+		"lint": "expo-module lint",
+		"test": "expo-module test",
+		"prepare": "expo-module prepare",
+		"prepublishOnly": "expo-module prepublishOnly",
+		"expo-module": "expo-module",
+		"open:ios": "xed example/ios",
+		"open:android": "open -a \"Android Studio\" example/android"
+	},
+	"keywords": [
+		"react-native",
+		"expo",
+		"expo-pdf-2",
+		"ExpoPdf"
+	],
+	"repository": "https://github.com/ratley/expo-pdf",
+	"bugs": {
+		"url": "https://github.com/ratley/expo-pdf/issues"
+	},
+	"author": "bradley inniss <bfinniss@gmail.com> (ratley)",
+	"license": "MIT",
+	"homepage": "https://github.com/ratley/expo-pdf#readme",
+	"dependencies": {},
+	"devDependencies": {
+		"@types/react": "~19.1.0",
+		"expo-module-scripts": "^5.0.7",
+		"expo": "^54.0.7",
+		"react-native": "0.81.4"
+	},
+	"peerDependencies": {
+		"expo": "*",
+		"react": "*",
+		"react-native": "*"
+	}
+}

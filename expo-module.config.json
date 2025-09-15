@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["ExpoPdfModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.pdf.ExpoPdfModule"]
+  }
+}

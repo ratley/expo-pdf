@@ -1,0 +1,14 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <!-- FileProvider for sharing local cached PDFs -->
+    <provider
+      android:name="expo.modules.pdf.ExpoPdfFileProvider"
+      android:authorities="${applicationId}.expopdf.fileprovider"
+      android:exported="false"
+      android:grantUriPermissions="true">
+      <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/expo_pdf_file_paths" />
+    </provider>
+  </application>
+</manifest>
