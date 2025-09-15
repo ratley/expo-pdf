@@ -1,6 +1,6 @@
 {
 	"name": "@ratley/expo-pdf",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"description": "A native PDF viewer that uses PDFKit on iOS and PdfRenderer/Pdfium on Android",
 	"main": "build/index.js",
 	"types": "build/index.d.ts",
