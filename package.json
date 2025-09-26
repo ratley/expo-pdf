@@ -21,6 +21,16 @@
 		"expo-pdf-2",
 		"ExpoPdf"
 	],
+	"files": [
+		"build/",
+		"src/",
+		"android/",
+		"ios/",
+		"*.podspec",
+		"expo-module.config.json",
+		"README.md",
+		"LICENSE"
+	],
 	"repository": "https://github.com/ratley/expo-pdf",
 	"bugs": {
 		"url": "https://github.com/ratley/expo-pdf/issues"
