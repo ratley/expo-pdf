@@ -129,7 +129,7 @@ See `example/components/PDFViewerLayout.tsx` for a headless layout that wires th
 ## Platform notes
 
 - iOS uses PDFKit.
-- Android uses `PdfRenderer` for thumbnails and `AndroidPdfViewer` for on‑screen rendering.
+- Android uses `PdfRenderer` for thumbnails and `AndroidPdfViewer` for on‑screen rendering ([marain87 fork](https://github.com/marain87/AndroidPdfViewer)).
 
 ## Contributing
 
