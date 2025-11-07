@@ -43,6 +43,7 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
   private var enableDoubleTap: Boolean = true
   private var initialPage0: Int? = null
   private var loaded = false
+  private var recycleAfterLoad = false
 
   fun setSource(value: String?) {
     if (value.isNullOrBlank()) return
@@ -76,6 +77,7 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
   private fun load() {
     val uri = sourceUri ?: return
     loaded = false
+    recycleAfterLoad = false
     try {
       pdfView.fromUri(uri)
         .defaultPage(initialPage0 ?: 0)
@@ -120,6 +122,11 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
     passwordDialog?.dismiss()
     passwordDialog = null
     onLoad(mapOf("source" to (sourceUri?.toString() ?: ""), "pageCount" to nbPages))
+    if (recycleAfterLoad) {
+      recycleAfterLoad = false
+      try { pdfView.recycle() } catch (t: Throwable) { Log.w("ExpoPdf", "recycle failed", t) }
+      loaded = false
+    }
   }
 
   override fun onPageChanged(page: Int, pageCount: Int) {
@@ -146,6 +153,10 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
       }
     }
     onError(mapOf("message" to msg))
+    if (recycleAfterLoad) {
+      recycleAfterLoad = false
+      try { pdfView.recycle() } catch (t: Throwable) { Log.w("ExpoPdf", "recycle failed", t) }
+    }
   }
 
   private fun showPasswordDialog(errorText: String?) {
@@ -223,6 +234,11 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
-    try { pdfView.recycle() } catch (t: Throwable) { Log.w("ExpoPdf", "recycle failed", t) }
+    if (loaded) {
+      try { pdfView.recycle() } catch (t: Throwable) { Log.w("ExpoPdf", "recycle failed", t) }
+    } else {
+      // Delay recycle until after the pending load finishes to avoid HandlerThread NPEs
+      recycleAfterLoad = true
+    }
   }
 }
