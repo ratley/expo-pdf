@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  # Publish a release when a version tag is pushed, e.g. v0.1.11
+  push:
+    tags:
+      - "v*"
+  # Allow manual releases for an already-pushed tag (e.g., backfilling v0.1.11)
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to release (e.g., v0.1.11). Defaults to the event ref."
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Build package
+        run: |
+          bun install --frozen-lockfile
+          bun run build
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ inputs.tag || github.ref_name }}
+          name: ${{ inputs.tag || github.ref_name }}
+          generateReleaseNotes: true
+          allowUpdates: true
