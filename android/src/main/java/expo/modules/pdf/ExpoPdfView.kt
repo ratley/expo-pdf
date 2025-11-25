@@ -43,6 +43,9 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
   private var enableDoubleTap: Boolean = true
   private var initialPage0: Int? = null
   private var loaded = false
+  private var isLoading = false
+  private var pendingReload = false
+  private var isDetached = false
   private var recycleAfterLoad = false
 
   fun setSource(value: String?) {
@@ -75,8 +78,22 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
   }
 
   private fun load() {
+    // If a load is already in progress, defer this request until it finishes to avoid
+    // recycling the underlying HandlerThread while DecodingAsyncTask is still running.
+    if (isLoading) {
+      pendingReload = true
+      return
+    }
+    if (isDetached) {
+      // Don't kick off new work for a view that's no longer attached.
+      pendingReload = false
+      return
+    }
+
     val uri = sourceUri ?: return
     loaded = false
+    isLoading = true
+    pendingReload = false
     recycleAfterLoad = false
     try {
       pdfView.fromUri(uri)
@@ -91,6 +108,7 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
         .onPageChange(this)
         .load()
     } catch (t: Throwable) {
+      isLoading = false
       onError(mapOf("message" to (t.message ?: "Load failed")))
     }
   }
@@ -118,10 +136,17 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
 
   override fun loadComplete(nbPages: Int) {
     loaded = true
+    isLoading = false
     // If a native password dialog was visible and load succeeded, dismiss it
     passwordDialog?.dismiss()
     passwordDialog = null
     onLoad(mapOf("source" to (sourceUri?.toString() ?: ""), "pageCount" to nbPages))
+    // If another load request was queued while decoding, run it now.
+    if (pendingReload && !isDetached) {
+      pendingReload = false
+      load()
+      return
+    }
     if (recycleAfterLoad) {
       recycleAfterLoad = false
       try { pdfView.recycle() } catch (t: Throwable) { Log.w("ExpoPdf", "recycle failed", t) }
@@ -134,6 +159,7 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
   }
 
   override fun onError(t: Throwable) {
+    isLoading = false
     val msg = t.message ?: "Unknown error"
     val isPasswordError = msg.contains("password", ignoreCase = true)
     if (isPasswordError && nativePasswordPrompt) {
@@ -153,6 +179,11 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
       }
     }
     onError(mapOf("message" to msg))
+    if (pendingReload && !isDetached) {
+      pendingReload = false
+      load()
+      return
+    }
     if (recycleAfterLoad) {
       recycleAfterLoad = false
       try { pdfView.recycle() } catch (t: Throwable) { Log.w("ExpoPdf", "recycle failed", t) }
@@ -232,8 +263,15 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
   fun getPage1(): Int = if (loaded) pdfView.currentPage + 1 else 1
   fun getPageCount(): Int = if (loaded) pdfView.pageCount else 0
 
+  override fun onAttachedToWindow() {
+    super.onAttachedToWindow()
+    isDetached = false
+  }
+
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
+    isDetached = true
+    pendingReload = false
     if (loaded) {
       try { pdfView.recycle() } catch (t: Throwable) { Log.w("ExpoPdf", "recycle failed", t) }
     } else {

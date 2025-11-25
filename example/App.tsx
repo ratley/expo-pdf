@@ -5,14 +5,13 @@ import { useCallback, useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Image,
-	SafeAreaView,
 	ScrollView,
 	Text,
 	TextInput,
 	TouchableOpacity,
 	View,
 } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import PdfViewer from "./components/PDFViewerLayout";
 
 function titleFromUrl(input: string): string | undefined {
@@ -112,7 +111,7 @@ export default function App() {
 		<QueryClientProvider client={queryClient}>
 			<SafeAreaProvider>
 				<ThemeProvider>
-					<SafeAreaView style={styles.container}>
+					<SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
 						<ScrollView style={styles.container}>
 							<Text style={styles.header}>Module API Example</Text>
 							<Group name="Documents">
@@ -134,12 +133,14 @@ export default function App() {
 											placeholder="https://example.com/your.pdf"
 											autoCapitalize="none"
 											autoCorrect={false}
+											placeholderTextColor="#666"
 											style={{
 												flex: 1,
 												backgroundColor: "#f3f3f3",
 												paddingHorizontal: 10,
 												height: 40,
 												borderRadius: 6,
+												color: "#111",
 											}}
 										/>
 										<TouchableOpacity
