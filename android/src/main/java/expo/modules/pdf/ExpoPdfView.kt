@@ -246,13 +246,14 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
   fun next() {
     if (!loaded) return
     val next = (pdfView.currentPage + 1).coerceAtMost(pdfView.pageCount - 1)
-    pdfView.jumpTo(next, true)
+    // Use immediate jump to avoid transient OnPageChange callbacks that cause UI flicker
+    pdfView.jumpTo(next, false)
   }
 
   fun prev() {
     if (!loaded) return
     val prev = (pdfView.currentPage - 1).coerceAtLeast(0)
-    pdfView.jumpTo(prev, true)
+    pdfView.jumpTo(prev, false)
   }
 
   fun goToPage1(page1: Int) {
