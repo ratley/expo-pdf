@@ -27,7 +27,7 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
   private val onPageChanged by EventDispatcher()
   private val onPasswordRequired by EventDispatcher()
 
-  private val pdfView = PDFView(context, null).also {
+  private val pdfView = ManagedPdfView(context).also {
     it.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     addView(it)
   }
@@ -279,5 +279,14 @@ class ExpoPdfView(context: Context, appContext: AppContext) :
       // Delay recycle until after the pending load finishes to avoid HandlerThread NPEs
       recycleAfterLoad = true
     }
+  }
+}
+
+// Custom PDFView that defers cleanup to the parent so we can avoid recycling the HandlerThread
+// while DecodingAsyncTask is still running (the root cause of the loadComplete NPE).
+private class ManagedPdfView(context: Context) : PDFView(context, null) {
+  override fun onDetachedFromWindow() {
+    // Skip PDFView's onDetachedFromWindow, which recycles immediately and can race with decoding.
+    // ExpoPdfView coordinates recycling after any in-flight load completes.
   }
 }
